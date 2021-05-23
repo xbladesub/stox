@@ -12,11 +12,12 @@ public struct Stox: ParsableCommand {
     // MARK: - 🔷 Public Properties
     
     public static let configuration = CommandConfiguration(commandName: "stox",
-                                                           abstract: "Export stock tickers from 'finviz.com' screener",
+                                                           abstract: "Display and export stock tickers from 'finviz.com' screener URLs",
                                                            version: Constants.version,
-                                                           subcommands: [Create.self])
+                                                           subcommands: [List.self, All.self, Create.self, Delete.self, Directory.self],
+                                                           defaultSubcommand: List.self)
     
     // MARK: - 👶 Init
     
-    public init() {}
+    public init() { }
 }
