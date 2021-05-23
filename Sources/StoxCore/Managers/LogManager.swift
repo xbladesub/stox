@@ -13,6 +13,9 @@ enum LogType<T> {
     case availableLists
     case fetchingLists(names: [String])
     case lists(T)
+    case listExported(name: String, path: String)
+    case currentExportDirectory(dir: String)
+    case exportFolder(name: String?)
     case error(StoxError)
 }
 
@@ -26,20 +29,18 @@ extension LogManager {
         switch type {
         
         case let .listCreation(item):
-            "\nNew list created 👍\n\n".log(color: .green)
+            "\n💠 New list created 💠\n\n".log(color: .green)
             print(
                 """
      USAGE:
      ❖ stox \(item.name, color: .green) (view tickers from this list)
-     ❖ stox \(item.name, color: .green) -exp <path> (export tickers to given directory)
-     ❖ stox \(item.name, color: .green) -delete (delete list)
-     ❖ stox \(item.name, color: .green) -update (update screener URL)
-     ❖ stox -all (view all tickers from all lists)
-     ❖ stox -all -exp <path> (export all tickers from all lists to given directory)
+     ❖ stox \(item.name, color: .green) -e (export tickers)
+     ❖ stox \(item.name, color: .green) -del (delete list)
+     ❖ stox --help (more options)
      """)
             
         case let .listsDeletion(names):
-            names.forEach { "'\($0)' deleted".log(color: .red, bold: true) }
+            names.forEach { "List '\($0)' deleted\n".log(color: .red, bold: true) }
             
         case .availableLists:
             print("\nAvalable lists:")
@@ -48,14 +49,30 @@ extension LogManager {
         case let .lists(tickerLists):
             if let items = tickerLists as? [ListItem] {
                 items.forEach { "\($0.name) - \($0.url)\n".log(color: .cyan) }
-            } else if let tickers = tickerLists as? [TickersData] {
-                #warning("📍 TODO")
-                print(tickers)
+            } else if let tickers = tickerLists as? TickersData {
+                guard !tickers.isEmpty else { return }
+                
+                tickers.forEach {
+                    "📄 \($0.key, color: .default):\n\($0.value.joined(separator: " "), color: .cyan)\n\n".log(color: .cyan)
+                }
             }
             
         case let .fetchingLists(listNames):
             let names = listNames.joined(separator: ", ")
-            "\nFetching lists: \(names, color: .default) \n\n".log(color: .cyan)
+            "\nFetching lists...: \(names, color: .default)\n\n".log(color: .cyan)
+            
+        case let .listExported(name, path):
+            "'\(name, color: .default)\("'", color: .green) \("exported to", color: .green) \(path, color: .default) ✅\n\n".log(color: .green)
+            
+        case let .currentExportDirectory(dir):
+            "\nCurrent export directory: \(dir, color: .default) 📂\n\n".log(color: .green)
+            
+        case let .exportFolder(name):
+            if let name = name {
+                "New tickers will be exported by default to a \(name, color: .default) \("folder", color: .green)\n".log(color: .green)
+            } else {
+                "New tickers will be exported by default to a folder with the name of the current date.\n".log(color: .green)
+            }
             
         case let .error(error):
             error.description.log(color: .red, bold: true)

@@ -15,9 +15,9 @@ struct ListsGroup: ParsableArguments {
     @Flag(name: .customShort("e"), help: "Export fetched tickers")
     var export: Bool = false
     
-    @Flag(name: .customShort("f"), help: "Create export folder")
-    var folder: Bool = false
-    
     @Option(name: .customShort("p"), help: "Export path. Default: Desktop", completion: .directory)
     var exportPath: String?
+    
+    @Flag(name: .customShort("f"), help: "Create export folder")
+    var folder: Bool = false
 }

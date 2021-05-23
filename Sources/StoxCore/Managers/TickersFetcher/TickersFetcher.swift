@@ -26,7 +26,7 @@ struct TickersFetcher: TickersFetcherType {
         .init(left: "quote.ashx?t=", right: "&ty=c&p=d&b=1")
     ]
     
-    private static var tickers: [TickersData] = []
+    private static var tickersData: TickersData = [:]
 }
 
 // MARK: - 💠 Internal Interface
@@ -34,15 +34,15 @@ struct TickersFetcher: TickersFetcherType {
 extension TickersFetcher {
     
     static func fetchTickers(lists: [ListItem],
-                             listsGroup: ListsGroup?,
-                             completion: @escaping (Result<[TickersData], TickersFetcherError>) -> Void) {
+                             listsGroup: ListsGroup,
+                             completion: @escaping (Result<TickersData, TickersFetcherError>) -> Void) {
         
         guard isReachable else {
-            DispatchQueue.main.async {
-                completion(.failure(TickersFetcherError.noInternetConnection))
-            }
+            completion(.failure(TickersFetcherError.noInternetConnection))
             return
         }
+        
+        tickersData.removeAll()
         
         LogManager.log(.fetchingLists(names: lists.map { $0.name }))
         
@@ -50,10 +50,23 @@ extension TickersFetcher {
             lists.forEach { fetch(item: $0) }
             
             downloadGroup.notify(queue: .main) {
-                RunLoop.exit()
                 
-                completion(.success(tickers))
-                tickers.removeAll()
+                ExportManager.exportIfNeed(tickersData: tickersData,
+                                           listsGroup: listsGroup) { result in
+                    
+                    RunLoop.exit()
+                    
+                    switch result {
+                    case let .success(export):
+                        if let export = export, !export.names.isEmpty {
+                            export.names.forEach { LogManager.log(.listExported(name: $0, path: export.path)) }
+                        }
+                    case let .failure(error):
+                        LogManager.log(.error(error))
+                    }
+                    
+                    completion(.success(tickersData))
+                }
             }
         }
         
@@ -71,8 +84,8 @@ private extension TickersFetcher {
         
         do {
             let htmlString = try String(contentsOf: item.url)
-            let tickersData = try processHTML(item: item, htmlString: htmlString)
-            tickers.append(tickersData)
+            let tickers = try processHTML(item: item, htmlString: htmlString)
+            tickersData[item.name] = tickers
             downloadGroup.leave()
         } catch {
             if let error = error as? StoxError {
@@ -87,7 +100,7 @@ private extension TickersFetcher {
         downloadGroup.wait()
     }
 
-    static func processHTML(item: ListItem, htmlString: String) throws -> TickersData {
+    static func processHTML(item: ListItem, htmlString: String) throws -> [String] {
         
         var tickers = [String]()
         
@@ -110,6 +123,6 @@ private extension TickersFetcher {
              throw TickersFetcherError.noTickersForURL(item.url)
         }
         
-        return [item.name: tickers]
+        return tickers
     }
 }

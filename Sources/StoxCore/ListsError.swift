@@ -19,20 +19,20 @@ enum ListsError: StoxError {
     case createDataEmpty(kind: Create.RequestKind)
     case noSavedLists
     case noListsFound
-    case listNotFound(listName: String)
+    case listsNotFound(listNames: [String])
     case fetchListFailed(listName: String)
     
     var description: String {
         switch self {
-        case let .invalidListName(input): return "Invalid list name: \(input)\n"
+        case let .invalidListName(input): return "Invalid list name: '\(input)' ⚠️\n"
         case let .invalidListURL(input): return "Invalid URL: \(input)\n"
-        case let .listAlreadyExists(input): return "List '\(input)' already exists\n"
-        case let .createDataEmpty(kind): return "List \(kind.rawValue) shouldn't be empty!\n"
-        case .noSavedLists: return "No saved lists\n"
-        case let .listNotFound(listName):
-            return "\nList '\(listName)' not found\n"
+        case let .listAlreadyExists(input): return "List '\(input)' already exists ⚠️\n"
+        case let .createDataEmpty(kind): return "List \(kind.rawValue) shouldn't be empty! ⚠️\n"
+        case .noSavedLists: return "\nNo saved lists\n"
+        case let .listsNotFound(listNames):
+            return "\nLists not found: \(listNames.joined(separator: ", "))\n"
         case .noListsFound: return "No lists found\n"
-        case let .fetchListFailed(name): return "Can't fetch '\(name)'\n"
+        case let .fetchListFailed(name): return "Can't fetch '\(name)' ❗️\n"
         }
     }
 }
@@ -40,10 +40,18 @@ enum ListsError: StoxError {
 enum ExportError: StoxError {
     
     case invalidExportPath
+    case invalidFolderName
+    case nothingToExport
+    case cantCreateDirectory(dirName: String)
+    case cantWriteTickersData(listName: String)
     
     var description: String {
         switch self {
-        case .invalidExportPath: return "Invalid export parth\n"
+        case .invalidExportPath: return "Invalid export directory\n"
+        case .nothingToExport: return "Nothing to export\n"
+        case let .cantWriteTickersData(listName): return "Export failed. list: '\(listName)' ❌\n\n"
+        case let .cantCreateDirectory(dirName): return "Can't create folder: '\(dirName)' ❌\n"
+        case .invalidFolderName: return "Invalid folder name\n"
         }
     }
 }
@@ -59,7 +67,7 @@ enum TickersFetcherError: StoxError {
         case let .noTickersForURL(url):
             return "No tickers found for \(url.absoluteString)\n"
         case .noInternetConnection:
-            return "No internet connection\n"
+            return "No internet connection ⚠️\n"
         case .cantProcessScreenerURL:
             return "Can't process screener URL\n"
         }

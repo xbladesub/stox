@@ -39,25 +39,30 @@ private extension ListsManager {
         } else {
             let lists: [(item: ListItem?, name: String)] = names.map { (listBy($0), $0) }
             let resultLists = lists.compactMap { $0.item }
+            let failedListNames = lists.filter { $0.item == nil }.map { $0.name }
             
-            if !resultLists.isEmpty {
-                for list in lists where list.item == nil {
-                    LogManager.log(.error(ListsError.listNotFound(listName: list.name)))
-                }
+            if !resultLists.isEmpty && !failedListNames.isEmpty {
+                LogManager.log(.error(ListsError.listsNotFound(listNames: failedListNames)))
             }
-            
-            completeion(resultLists.isEmpty ? .failure(.noListsFound) : .success(resultLists))
+
+            completeion(resultLists.isEmpty ? .failure(.listsNotFound(listNames: failedListNames)) : .success(resultLists))
         }
     }
     
     static func delete(lists: [ListItem]) {
         let logNames = lists.map { $0.name }
-        self.lists.removeAll()
+        
+        lists.forEach { deleteItem in
+            if let index = self.lists.firstIndex(where: { $0.name == deleteItem.name }) {
+                self.lists.remove(at: index)
+            }
+        }
+        
         LogManager.log(.listsDeletion(logNames))
     }
     
-    static func display(lists: [ListItem], listsGroup: ListsGroup?) {
-        if listsGroup?.review ?? false {
+    static func display(lists: [ListItem], listsGroup: ListsGroup) {
+        if listsGroup.review {
             LogManager.log(.lists(lists))
         } else {
             TickersFetcher.fetchTickers(lists: lists,
@@ -96,11 +101,11 @@ extension ListsManager {
                 case .delete:
                     delete(lists: lists)
                 case .display:
-                    display(lists: lists, listsGroup: listsGroup)
+                    display(lists: lists, listsGroup: listsGroup!)
                 }
                 
-            case let .failure(erorr):
-                LogManager.log(.error(erorr))
+            case let .failure(error):
+                LogManager.log(.error(error))
             }
         }
     }

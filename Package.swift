@@ -18,7 +18,7 @@ let package = Package(
         .target(name: "StoxCore", dependencies: [
             .product(name: "ArgumentParser", package: "swift-argument-parser"),
             .product(name: "SwiftToolsSupport", package: "swift-tools-support-core"),
-            .product(name: "Reachability", package: "Reachability"),
+            .product(name: "Reachability", package: "Reachability")
         ]),
         .testTarget(
             name: "stoxTests",
