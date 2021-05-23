@@ -8,10 +8,6 @@
 import Foundation
 import Reachability
 
-// MARK: - ⛩ Type Definitions
-
-typealias TickersData = [String: [String]]
-
 struct TickersFetcher: TickersFetcherType {
     
     // MARK: - 🔶 Private Properties
@@ -35,7 +31,7 @@ extension TickersFetcher {
     
     static func fetchTickers(lists: [ListItem],
                              listsGroup: ListsGroup,
-                             completion: @escaping (Result<TickersData, TickersFetcherError>) -> Void) {
+                             completion: @escaping FetchTickersResult) {
         
         guard isReachable else {
             completion(.failure(TickersFetcherError.noInternetConnection))

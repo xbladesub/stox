@@ -16,7 +16,7 @@ enum ListsActionType {
 
 struct ListsManager: ListManagerType {
     
-    // MARK: - 🔷 Public Properties
+    // MARK: - 🔷 Internal Properties
     
     @CodableObject("lists", defaultValue: [])
     static var lists: [ListItem]

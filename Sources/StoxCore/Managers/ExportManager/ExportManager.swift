@@ -37,8 +37,9 @@ struct ExportManager: ExportManagerType {
 
 extension ExportManager {
     
-    static func exportIfNeed(tickersData: TickersData, listsGroup: ListsGroup, completion: @escaping (Result<(names: [String],
-                                                     path: String)?, ExportError>) -> Void) {
+    static func exportIfNeed(tickersData: TickersData,
+                             listsGroup: ListsGroup,
+                             completion: @escaping ExportResult) {
             
         var exportPath: String = ""
         var customFolderName: String = ""
