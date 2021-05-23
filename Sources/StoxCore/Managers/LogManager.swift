@@ -11,7 +11,7 @@ enum LogType<T> {
     case listCreation(ListItem)
     case listsDeletion([String])
     case availableLists
-    case fetchingTickers
+    case fetchingLists(names: [String])
     case lists(T)
     case error(StoxError)
 }
@@ -53,8 +53,9 @@ extension LogManager {
                 print(tickers)
             }
             
-        case .fetchingTickers:
-            "\nFetching tickers...\n\n".log(color: .cyan)
+        case let .fetchingLists(listNames):
+            let names = listNames.joined(separator: ", ")
+            "\nFetching lists: \(names, color: .default) \n\n".log(color: .cyan)
             
         case let .error(error):
             error.description.log(color: .red, bold: true)

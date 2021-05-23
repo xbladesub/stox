@@ -23,6 +23,6 @@ struct All: ParsableCommand {
 extension All {
     
     func run() throws {
-        ListsManager.execute(.process, listsGroup: listsGroup)
+        ListsManager.execute(.display, listsGroup: listsGroup)
     }
 }

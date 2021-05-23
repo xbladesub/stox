@@ -27,7 +27,7 @@ struct List: ParsableCommand {
 extension List {
     
     func run() throws {
-        ListsManager.execute(.process,
+        ListsManager.execute(.display,
                              names: lists,
                              listsGroup: listsGroup)
     }

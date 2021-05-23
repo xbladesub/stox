@@ -9,9 +9,15 @@ import ArgumentParser
 
 struct ListsGroup: ParsableArguments {
     
-    @Flag(name: .shortAndLong, help: "Display names and URLs of lists")
+    @Flag(name: .customShort("r"), help: "Display only names and URLs of lists")
     var review: Bool = false
     
-    @Option(name: .customShort("p"), help: "Export path", completion: .directory)
+    @Flag(name: .customShort("e"), help: "Export fetched tickers")
+    var export: Bool = false
+    
+    @Flag(name: .customShort("f"), help: "Create export folder")
+    var folder: Bool = false
+    
+    @Option(name: .customShort("p"), help: "Export path. Default: Desktop", completion: .directory)
     var exportPath: String?
 }

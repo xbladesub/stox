@@ -11,51 +11,53 @@ import Reachability
 // MARK: - ⛩ Type Definitions
 
 typealias TickersData = [String: [String]]
-typealias Completion = ((_ data: [TickersData], _ error: Error?) -> Void)
 
-class TickersFetcher: TickersFetcherType {
+struct TickersFetcher: TickersFetcherType {
     
     // MARK: - 🔶 Private Properties
     
-    private var isReachable: Bool { (try? Reachability().connection != .unavailable) ?? false }
+    private static var isReachable: Bool { (try? Reachability().connection != .unavailable) ?? false }
     
-    private let downloadGroup = DispatchGroup()
+    private static let downloadGroup = DispatchGroup()
     
-    private let rangeTemplates: [TickersRangeTemplate] = [
+    private static let scraperRanges: [ScraperRange] = [
         .init(left: "s=m&t=", right: "'>&nbsp"),
         .init(left: "m&ty=c&t=", right: "'><br>&nbsp"),
         .init(left: "quote.ashx?t=", right: "&ty=c&p=d&b=1")
     ]
     
-    private var tickers: [TickersData] = []
-    
-    // MARK: - 🔷 Internal Properties
-    
-    var onProgress: Progress?
-    
-    var onCompleted: Completion?
+    private static var tickers: [TickersData] = []
 }
 
 // MARK: - 💠 Internal Interface
 
 extension TickersFetcher {
     
-    func fetchLists(lists: [ListItem]) {
+    static func fetchTickers(lists: [ListItem],
+                             listsGroup: ListsGroup?,
+                             completion: @escaping (Result<[TickersData], TickersFetcherError>) -> Void) {
         
         guard isReachable else {
             DispatchQueue.main.async {
-                self.onCompleted?([], TickersFetcherError.noInternetConnection)
+                completion(.failure(TickersFetcherError.noInternetConnection))
             }
             return
         }
         
+        LogManager.log(.fetchingLists(names: lists.map { $0.name }))
+        
         DispatchQueue.global().async { [self] in
             lists.forEach { fetch(item: $0) }
             
-            downloadGroup.notify(queue: .main) { [weak self] in
-                self?.onCompleted?(tickers, nil)
+            downloadGroup.notify(queue: .main) {
+                RunLoop.exit()
+                
+                completion(.success(tickers))
+                tickers.removeAll()
             }
         }
+        
+        RunLoop.enter()
     }
 }
 
@@ -63,7 +65,7 @@ extension TickersFetcher {
 
 private extension TickersFetcher {
     
-    func fetch(item: ListItem) {
+    static func fetch(item: ListItem) {
         
         downloadGroup.enter()
         
@@ -85,13 +87,13 @@ private extension TickersFetcher {
         downloadGroup.wait()
     }
 
-    func processHTML(item: ListItem, htmlString: String) throws -> TickersData {
+    static func processHTML(item: ListItem, htmlString: String) throws -> TickersData {
         
         var tickers = [String]()
         
-        rangeTemplates.forEach { template in
-            let leftRanges = htmlString.ranges(of: template.left)
-            let rightRanges = htmlString.ranges(of: template.right)
+        scraperRanges.forEach { sRange in
+            let leftRanges = htmlString.ranges(of: sRange.left)
+            let rightRanges = htmlString.ranges(of: sRange.right)
             
             let ranges = zip(leftRanges, rightRanges)
             

@@ -30,7 +30,7 @@ enum ListsError: StoxError {
         case let .createDataEmpty(kind): return "List \(kind.rawValue) shouldn't be empty!\n"
         case .noSavedLists: return "No saved lists\n"
         case let .listNotFound(listName):
-            return "List '\(listName)' not found\n"
+            return "\nList '\(listName)' not found\n"
         case .noListsFound: return "No lists found\n"
         case let .fetchListFailed(name): return "Can't fetch '\(name)'\n"
         }

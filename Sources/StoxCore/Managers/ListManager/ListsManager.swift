@@ -11,7 +11,7 @@ import Foundation
 
 enum ListsActionType {
     case delete
-    case process
+    case display
 }
 
 struct ListsManager: ListManagerType {
@@ -50,42 +50,24 @@ private extension ListsManager {
         }
     }
     
-    static func fetchTickers(lists: [ListItem],
-                             exportPath: String?,
-                             completion: @escaping (Result<[TickersData], Error>) -> Void) {
-        let fetcher = TickersFetcher()
-
-        LogManager.log(.fetchingTickers)
-        
-        fetcher.fetchLists(lists: lists)
-
-        fetcher.onCompleted = { tickers, error in
-            completion(error != nil ? .failure(error!) : .success(tickers))
-            RunLoop.exit()
-        }
-
-        RunLoop.enter()
-    }
-    
     static func delete(lists: [ListItem]) {
         let logNames = lists.map { $0.name }
         self.lists.removeAll()
         LogManager.log(.listsDeletion(logNames))
     }
     
-    static func process(lists: [ListItem], listsGroup: ListsGroup?) {
+    static func display(lists: [ListItem], listsGroup: ListsGroup?) {
         if listsGroup?.review ?? false {
             LogManager.log(.lists(lists))
         } else {
-            fetchTickers(lists: lists,
-                         exportPath: listsGroup?.exportPath) { result in
+            TickersFetcher.fetchTickers(lists: lists,
+                                        listsGroup: listsGroup) { result in
+                
                 switch result {
                 case let .success(tickersData):
                     LogManager.log(.lists(tickersData))
                 case let .failure(error):
-                    if let error = error as? StoxError {
-                        LogManager.log(.error(error))
-                    }
+                    LogManager.log(.error(error))
                 }
             }
         }
@@ -113,8 +95,8 @@ extension ListsManager {
                 switch type {
                 case .delete:
                     delete(lists: lists)
-                case .process:
-                    process(lists: lists, listsGroup: listsGroup)
+                case .display:
+                    display(lists: lists, listsGroup: listsGroup)
                 }
                 
             case let .failure(erorr):
