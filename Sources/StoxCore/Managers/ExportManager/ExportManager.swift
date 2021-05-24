@@ -141,7 +141,7 @@ private extension ExportManager {
     
     static func append(toPath path: String, newFolderName: String, withPathComponent pathComponent: String) -> String? {
         
-        if var pathURL = URL(string: path) {
+        if var pathURL = URL(string: path.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!) {
             
             if !newFolderName.isEmpty {
                 let newPath = pathURL.appendingPathComponent(newFolderName)
@@ -156,7 +156,7 @@ private extension ExportManager {
             
             pathURL.appendPathComponent(pathComponent)
             
-            return pathURL.absoluteString
+            return pathURL.path
         }
         
         return nil

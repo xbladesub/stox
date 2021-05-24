@@ -46,7 +46,9 @@ private extension Settings {
     func exportDirectoryRequest(completion: @escaping (String) -> Void) {
         "New export directory: ".log(color: .cyan)
         
-        let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let input = readLine()?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: #"\ "#, with: " ")
         
         validateDirectory(input) { result in
             switch result {

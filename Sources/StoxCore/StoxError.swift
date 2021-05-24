@@ -49,7 +49,7 @@ enum ExportError: StoxError {
         switch self {
         case .invalidExportPath: return "Invalid export directory\n"
         case .nothingToExport: return "Nothing to export\n"
-        case let .cantWriteTickersData(listName): return "Export failed. list: '\(listName)' ❌\n\n"
+        case let .cantWriteTickersData(listName): return "Export failed. List: '\(listName)' ❌\n\n"
         case let .cantCreateDirectory(dirName): return "Can't create folder: '\(dirName)' ❌\n"
         case .invalidFolderName: return "Invalid folder name\n"
         }

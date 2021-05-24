@@ -18,7 +18,7 @@ struct ListsManager: ListManagerType {
     
     // MARK: - 🔷 Internal Properties
     
-    @CodableObject("lists", defaultValue: [])
+    @CodableObject("stox-lists", defaultValue: [])
     static var lists: [ListItem]
 }
 
