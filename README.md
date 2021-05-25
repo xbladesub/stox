@@ -22,12 +22,6 @@ Stox helps you with:
 
 ## Installation
 
-### Using [Homebrew](http://brew.sh/):
-
-```
-$ brew install stox
-```
-
 ### Using [Mint](https://github.com/yonaskolb/mint):
 
 ```
