@@ -1,35 +1,18 @@
-EXECUTABLE_NAME = stox
-REPO = https://github.com/xbladesub/stox
-VERSION = 1.0.0
-
-PREFIX = /usr/local
-INSTALL_PATH = $(PREFIX)/bin/$(EXECUTABLE_NAME)
-BUILD_PATH = .build/apple/Products/Release/$(EXECUTABLE_NAME)
-CURRENT_PATH = $(PWD)
-RELEASE_TAR = $(REPO)/archive/$(VERSION).tar.gz
-
-.PHONY: install build uninstall format_code publish release
-
-install: build
-	mkdir -p $(PREFIX)/bin
-	cp -f $(BUILD_PATH) $(INSTALL_PATH)
+prefix ?= /usr/local
+bindir = $(prefix)/bin
+libdir = $(prefix)/lib
 
 build:
-	swift build --disable-sandbox -c release --arch arm64 --arch x86_64
+	swift build -c release --disable-sandbox
+
+install: build
+	install -d "$(bindir)" "$(libdir)"
+	install ".build/release/stox" "$(bindir)"
 
 uninstall:
-	rm -f $(INSTALL_PATH)
+	rm -rf "$(bindir)/stox"
 
-format_code:
-	swiftformat Tests --stripunusedargs closure-only --header strip --disable blankLinesAtStartOfScope
-	swiftformat Sources --stripunusedargs closure-only --header strip --disable blankLinesAtStartOfScope
+clean:
+	rm -rf .build
 
-publish: zip_binary bump_brew
-	echo "published $(VERSION)"
-
-bump_brew:
-	brew update
-	brew bump-formula-pr --url=$(RELEASE_TAR) stox
-
-zip_binary: build
-	zip -jr $(EXECUTABLE_NAME).zip $(BUILD_PATH)
+.PHONY: build install uninstall clean
