@@ -15,6 +15,8 @@ Stox helps you with:
 - [x] Create and save watchlists from stock screener URL's
 - [x] View and export tickers
 
+![](Presentation/export.png)
+
 ### Requirements
 - Xcode 12.4 and up
 
@@ -42,6 +44,22 @@ $ swift run stox --help
 ```
 
 ## Usage
+
+### Create lists
+
+```
+$ stox new
+```
+
+![](Presentation/new.png)
+
+### Change export settings
+
+```
+$ stox set
+```
+
+![](Presentation/set.png)
 
 ```
 $ stox --help
