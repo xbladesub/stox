@@ -1,4 +1,4 @@
-# Stox
+# stox
 A Swift command-line tool to view and export tickers from finviz.com stock screener.
 
 <p align="center">
