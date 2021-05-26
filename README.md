@@ -23,7 +23,7 @@ Stox helps you with:
 ## Installation
 
 
-### Homebrew [Mint](https://brew.sh):
+### Homebrew [Homebrew](https://brew.sh):
 
 ```
 $ brew install xbladesub/formulae/stox
