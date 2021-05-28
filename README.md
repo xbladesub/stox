@@ -15,7 +15,7 @@ Stox helps you with:
 - [x] Create and save watchlists from stock screener URL's
 - [x] View and export tickers
 
-![](Presentation/export.png)
+![gif with examples][examples-link]
 
 ### Requirements
 - Xcode 12.4 and up
@@ -81,3 +81,4 @@ SUBCOMMANDS:
   set                     Specify tickers export options
   dir                     Display tickers export directory
 ```
+[examples-link]:   https://github.com/xbladesub/stox/blob/master/Presentation/intro.gif
