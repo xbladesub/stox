@@ -25,7 +25,7 @@ struct LogManager { }
 
 extension LogManager {
     
-    static func log(_ type: LogType<Any>, extraNewLine: Bool = false) {
+    static func log(_ type: LogType<Any>) {
         switch type {
         
         case let .listCreation(item):
@@ -59,13 +59,13 @@ extension LogManager {
             
         case let .fetchingLists(listNames):
             let names = listNames.joined(separator: ", ")
-            "\nFetching lists...: \(names, color: .default)\n\n".log(color: .cyan)
+            "Fetching lists...: \(names, color: .default)\n\n".log(color: .cyan)
             
         case let .listExported(name, path):
             "'\(name, color: .default)\("'", color: .green) \("exported to", color: .green) \(path, color: .default) ✅\n\n".log(color: .green)
             
         case let .currentExportDirectory(dir):
-            "\nCurrent export directory: \(dir, color: .default) 📂\n\n".log(color: .green)
+            "Current export directory: \(dir, color: .default) 📂\n".log(color: .green)
             
         case let .exportFolder(name):
             if let name = name {
@@ -77,7 +77,5 @@ extension LogManager {
         case let .error(error):
             error.description.log(color: .red, bold: true)
         }
-        
-        if extraNewLine { print("\n") }
     }
 }

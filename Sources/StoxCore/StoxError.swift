@@ -28,9 +28,9 @@ enum ListsError: StoxError {
         case let .invalidListURL(input): return "Invalid URL: \(input)\n"
         case let .listAlreadyExists(input): return "List '\(input)' already exists ⚠️\n"
         case let .createDataEmpty(kind): return "List \(kind.rawValue) shouldn't be empty! ⚠️\n"
-        case .noSavedLists: return "\nNo saved lists\n"
+        case .noSavedLists: return "No saved lists\n"
         case let .listsNotFound(listNames):
-            return "\nLists not found: \(listNames.joined(separator: ", "))\n"
+            return "Lists not found: \(listNames.joined(separator: ", "))\n"
         case .noListsFound: return "No lists found\n"
         case let .fetchListFailed(name): return "Can't fetch '\(name)' ❗️\n"
         }
