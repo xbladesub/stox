@@ -26,13 +26,13 @@ Stox helps you with:
 ### Homebrew [Homebrew](https://brew.sh):
 
 ```
-$ brew install xbladesub/formulae/stox
+brew install xbladesub/formulae/stox
 ```
 
 ### Using [Mint](https://github.com/yonaskolb/mint):
 
 ```
-$ mint install xbladesub/stox
+mint install xbladesub/stox
 ```
 
 ### Development
@@ -41,7 +41,7 @@ $ mint install xbladesub/stox
 - Run the following command to try it out:
 
 ```bash
-$ swift run stox --help
+swift run stox --help
 ```
 
 ## Usage
@@ -49,7 +49,7 @@ $ swift run stox --help
 ### Create lists
 
 ```
-$ stox new
+stox new
 ```
 
 ![](Presentation/new.png)
@@ -57,7 +57,7 @@ $ stox new
 ### Change export settings
 
 ```
-$ stox set
+stox set
 ```
 
 ![](Presentation/set.png)
