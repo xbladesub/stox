@@ -1,4 +1,4 @@
-// swift-tools-version:5.4
+// swift-tools-version:5.5
 
 import PackageDescription
 
@@ -17,7 +17,14 @@ let package = Package(
                  .upToNextMajor(from: "5.1.0"))
     ],
     targets: [
-        .executableTarget(name: "stox", dependencies: ["StoxCore"]),
+        .executableTarget(
+            name: "stox",
+            dependencies: ["StoxCore"],
+            swiftSettings: [
+//                .unsafeFlags(["-Xfrontend", "-parse-as-library"]),
+                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"]),
+                .unsafeFlags(["-Xfrontend", "-disable-availability-checking"])
+            ]),
         .target(name: "StoxCore", dependencies: [
             .product(name: "ArgumentParser", package: "swift-argument-parser"),
             .product(name: "SwiftToolsSupport-auto", package: "swift-tools-support-core"),

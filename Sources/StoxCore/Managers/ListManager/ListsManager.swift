@@ -31,21 +31,28 @@ private extension ListsManager {
     }
     
     static func validateNames(names: [String],
-                              type: ListsActionType,
-                              completeion: @escaping (Result<[ListItem], ListsError>) -> Void) {
-        
+                              type: ListsActionType) async throws -> [ListItem] {
+
         if names.isEmpty {
-            completeion(lists.isEmpty ? .failure(type == .delete ? .noListsFound : .noSavedLists) : .success(lists))
+            if lists.isEmpty {
+                throw type == .delete ? ListsError.noListsFound : ListsError.noSavedLists
+            } else {
+                return lists
+            }
         } else {
             let lists: [(item: ListItem?, name: String)] = names.map { (listBy($0), $0) }
             let resultLists = lists.compactMap { $0.item }
             let failedListNames = lists.filter { $0.item == nil }.map { $0.name }
-            
+
             if !resultLists.isEmpty && !failedListNames.isEmpty {
                 LogManager.log(.error(ListsError.listsNotFound(listNames: failedListNames)))
             }
 
-            completeion(resultLists.isEmpty ? .failure(.listsNotFound(listNames: failedListNames)) : .success(resultLists))
+            if resultLists.isEmpty {
+                throw ListsError.listsNotFound(listNames: failedListNames)
+            } else {
+                return resultLists
+            }
         }
     }
     
@@ -91,22 +98,22 @@ extension ListsManager {
     
     static func execute(_ type: ListsActionType,
                         names: [String] = [],
-                        listsGroup: ListsGroup? = nil) {
+                        listsGroup: ListsGroup? = nil) async {
         
-        validateNames(names: names, type: type) { result in
-            
-            switch result {
-            case let .success(lists):
-                switch type {
-                case .delete:
-                    delete(lists: lists)
-                case .display:
-                    display(lists: lists, listsGroup: listsGroup!)
-                }
-                
-            case let .failure(error):
-                LogManager.log(.error(error))
+        do {
+            let lists = try await validateNames(names: names, type: type)
+
+            switch type {
+            case .delete:
+                delete(lists: lists)
+            case .display:
+                display(lists: lists, listsGroup: listsGroup!)
             }
+
+        } catch let error as ListsError {
+            LogManager.log(.error(error))
+        } catch let error {
+            print(error)
         }
     }
 }
