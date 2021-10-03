@@ -44,7 +44,6 @@ extension ExportManager {
         var exportPath: String = ""
         var customFolderName: String = ""
         var shouldExport: Bool = false
-        
         if listsGroup.folder {
             exportFolderRequest { exportFolderName in
                 customFolderName = exportFolderName
@@ -70,7 +69,10 @@ extension ExportManager {
             guard !tickersData.isEmpty else { return completion(.failure(.nothingToExport)) }
             
             DispatchQueue.global().async {
-                exportTickers(tickersData: tickersData, exportPath: exportPath, folderName: customFolderName)
+                exportTickers(tickersData: tickersData,
+                              exportPath: exportPath,
+                              folderName: customFolderName,
+                              numberOfSymbols: listsGroup.numberOfSymbols)
                 
                 exportGroup.notify(queue: .main) {
                     let exportedPath = customFolderName.isEmpty ? exportPath : "\(exportPath)/\(customFolderName)"
@@ -95,12 +97,23 @@ private extension ExportManager {
     
     static func exportTickers(tickersData: TickersData,
                               exportPath: String,
-                              folderName: String) {
+                              folderName: String,
+                              numberOfSymbols: Int?) {
         for (listName, tickers) in tickersData {
             
             exportGroup.enter()
             
-            save(text: tickers.joined(separator: "\n"),
+            var tickersToExport: [String]!
+            
+            if let numberOfSymbols = numberOfSymbols,
+               numberOfSymbols <= tickers.count - 1,
+               numberOfSymbols.signum() > 0 {
+                tickersToExport = Array<String>(tickers[0..<numberOfSymbols])
+            } else {
+                tickersToExport = tickers
+            }
+            
+            save(text: tickersToExport.joined(separator: "\n"),
                  toDirectory: exportPath,
                  customFolder: folderName,
                  withFileName: listName) { result in

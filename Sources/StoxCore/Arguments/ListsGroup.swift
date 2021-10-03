@@ -18,6 +18,9 @@ struct ListsGroup: ParsableArguments {
     @Option(name: .customShort("p"), help: "Export path. Default: Desktop", completion: .directory)
     var exportPath: String?
     
+    @Option(name: .customShort("n"), help: "Number symbols to export")
+    var numberOfSymbols: Int?
+    
     @Flag(name: .customShort("f"), help: "Create export folder")
     var folder: Bool = false
 }
