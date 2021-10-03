@@ -72,7 +72,8 @@ extension ExportManager {
                 exportTickers(tickersData: tickersData,
                               exportPath: exportPath,
                               folderName: customFolderName,
-                              numberOfSymbols: listsGroup.numberOfSymbols)
+                              numberOfSymbols: listsGroup.numberOfSymbols,
+                              merge: listsGroup.merge)
                 
                 exportGroup.notify(queue: .main) {
                     let exportedPath = customFolderName.isEmpty ? exportPath : "\(exportPath)/\(customFolderName)"
@@ -98,25 +99,26 @@ private extension ExportManager {
     static func exportTickers(tickersData: TickersData,
                               exportPath: String,
                               folderName: String,
-                              numberOfSymbols: Int?) {
-        for (listName, tickers) in tickersData {
-            
+                              numberOfSymbols: Int?,
+                              merge: Bool) {
+        
+        if merge {
             exportGroup.enter()
             
-            var tickersToExport: [String]!
-            
-            if let numberOfSymbols = numberOfSymbols,
-               numberOfSymbols <= tickers.count - 1,
-               numberOfSymbols.signum() > 0 {
-                tickersToExport = Array<String>(tickers[0..<numberOfSymbols])
-            } else {
-                tickersToExport = tickers
+            let tickersToExport: [String] = tickersData.compactMap { dict in
+                if let numberOfSymbols = numberOfSymbols,
+                   numberOfSymbols <= dict.value.count - 1,
+                   numberOfSymbols.signum() > 0 {
+                    return Array<String>(dict.value[0..<numberOfSymbols]).joined(separator: "\n")
+                } else {
+                    return dict.value.joined(separator: "\n")
+                }
             }
             
             save(text: tickersToExport.joined(separator: "\n"),
                  toDirectory: exportPath,
                  customFolder: folderName,
-                 withFileName: listName) { result in
+                 withFileName: "Stocks \(currentDateString)") { result in
                 switch result {
                 case let .success(listName):
                     exportedLists.append(listName)
@@ -128,6 +130,37 @@ private extension ExportManager {
             }
             
             exportGroup.wait()
+        } else {
+            for (listName, tickers) in tickersData {
+                
+                exportGroup.enter()
+                
+                var tickersToExport: [String]!
+                
+                if let numberOfSymbols = numberOfSymbols,
+                   numberOfSymbols <= tickers.count - 1,
+                   numberOfSymbols.signum() > 0 {
+                    tickersToExport = Array<String>(tickers[0..<numberOfSymbols])
+                } else {
+                    tickersToExport = tickers
+                }
+                
+                save(text: tickersToExport.joined(separator: "\n"),
+                     toDirectory: exportPath,
+                     customFolder: folderName,
+                     withFileName: listName) { result in
+                    switch result {
+                    case let .success(listName):
+                        exportedLists.append(listName)
+                        exportGroup.leave()
+                    case let .failure(error):
+                        LogManager.log(.error(error))
+                        exportGroup.leave()
+                    }
+                }
+                
+                exportGroup.wait()
+            }
         }
     }
     

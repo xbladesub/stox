@@ -21,6 +21,9 @@ struct ListsGroup: ParsableArguments {
     @Option(name: .customShort("n"), help: "Number symbols to export")
     var numberOfSymbols: Int?
     
+    @Flag(name: .customShort("m"), help: "Merge export lists")
+    var merge: Bool = false
+    
     @Flag(name: .customShort("f"), help: "Create export folder")
     var folder: Bool = false
 }
